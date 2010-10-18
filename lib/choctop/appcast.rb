@@ -4,10 +4,11 @@ module ChocTop
       if skip_xcode_build
         puts "Skipping build task..."
       else
-        sh "xcodebuild -configuration #{build_type} -target #{build_target} #{build_opts}"
+        sh "xcodebuild clean"
+        sh "xcodebuild -configuration #{build_type} -target \"#{build_target}\" #{build_opts}"
       end
     end
-
+    
     def make_appcast
       FileUtils.mkdir_p(build_path)
       appcast = File.open("#{build_path}/#{appcast_filename}", 'w') do |f|

@@ -91,9 +91,10 @@ module ChocTop
 
     def configure_dmg_window
       if background_file
-        target_background = "#{volume_path}/#{volume_background}"
+        target_background = "#{volume_path}"
         FileUtils.mkdir_p(File.dirname(target_background))
         FileUtils.cp(background_file, target_background) 
+        
       end
       script = <<-SCRIPT.gsub(/^      /, '')
         tell application "Finder"
@@ -112,12 +113,15 @@ module ChocTop
                set icon size of the icon view options of container window to #{icon_size}
                set text size of the icon view options of container window to #{icon_text_size}
                set arrangement of the icon view options of container window to not arranged
-               #{set_position_of_files}
+
+               set position of item "#{@app_name}" to {145, 190}
+
                #{set_position_of_shortcuts}
                close
                open
                set the bounds of the container window to {#{window_bounds.join(", ")}}
-               set background picture of the icon view options of container window to file "#{volume_background.gsub(/\//,':')}"
+
+               set background picture of the icon view options of container window to file ".background.jpg"
                update without registering applications
                delay 5 -- Sync
                close
@@ -127,7 +131,10 @@ module ChocTop
         end tell
       SCRIPT
       puts "script: #{script}"
-      run_applescript(script)
+      begin
+        run_applescript(script)
+      rescue Exception=>e
+      end
       sh "SetFile -a V '#{target_background}'" if background_file
     end
 
@@ -196,7 +203,7 @@ module ChocTop
     end
     
     def add_file_to_dmg_src_folder(path, options)
-      target = File.join(tmp_dmg_src_folder, options[:name])
+      target = File.join(tmp_dmg_src_folder, @app_name)
       sh ::Escape.shell_command(['cp', '-r', path, target])
       if options[:exclude]
         exclude_list = options[:exclude].is_a?(Array) ? options[:exclude] : [options[:exclude].to_s]

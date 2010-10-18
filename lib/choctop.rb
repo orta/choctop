@@ -37,6 +37,7 @@ module ChocTop
       @info_plist_name ||= 'Info.plist'
     end
   
+  attr_accessor :output_path
   
     # The name of the Cocoa application
     # Default: info_plist['CFBundleExecutable'] or project folder name if "${EXECUTABLE_NAME}"
@@ -83,6 +84,13 @@ module ChocTop
     # The user to log in on the remote server.
     # Default: empty
     attr_accessor :user
+  
+    # Rename the app to this.
+    # Default: empty
+    attr_accessor :app_name
+    def app_name
+        @app_name
+    end
   
     # The url from where the xml + dmg files will be downloaded
     # Default: dir path from appcast_filename
@@ -153,16 +161,20 @@ module ChocTop
       @dmg_src_folder ||= "build/#{build_type}/dmg"
     end
   
+    def safe_name
+      name.gsub(/ /, '_')
+    end
+  
     # Generated filename for a distribution, from name, version and .dmg
     # e.g. MyApp-1.0.0.dmg
     def pkg_name
-      version ? "#{name}-#{version}.dmg" : versionless_pkg_name
+      version ? "#{safe_name}-#{version}.dmg" : versionless_pkg_name
     end
   
     # Version-less generated filename for a distribution, from name and .dmg
     # e.g. MyApp.dmg
     def versionless_pkg_name
-      "#{name}.dmg"
+      "#{safe_name}.dmg"
     end
   
     # Path to generated package DMG
